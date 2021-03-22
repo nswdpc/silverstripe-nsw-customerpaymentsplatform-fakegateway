@@ -1,0 +1,46 @@
+---
+Name: nswdpc-cpp-fakegatewayconfiguration
+After:
+  - '#nswdpc-cpp-configuration'
+envvarset: 'USE_FAKE_GATEWAY'
+---
+# Check the documentation for assistance setting these configuration values
+SilverStripe\Control\Director:
+  rules:
+    'fakecpp/v1//$Action': 'NSWDPC\Payments\NSWGOVCPP\Agency\FakeGatewayController'
+NSWDPC\Payments\NSWGOVCPP\Agency\FakeGatewayController:
+  enabled: true
+  # the POSTback URL for payment completion
+  paymentCompletionUrl: 'http://localhost/paymentendpoint/gateway/NSWGOVCPP/complete'
+  jwtPrivateKey: ''
+SilverStripe\Omnipay\Model\Payment:
+  allowed_gateways:
+    - 'NSWGOVCPP'
+SilverStripe\Omnipay\GatewayInfo:
+  NSWGOVCPP:
+    parameters:
+      clientId: 'fake-client-id'
+      clientSecret: 'fake-client-secret'
+      # a test public key for decoding JWT
+      jwtPublicKey: ''
+      # get an access token
+      accessTokenUrl: 'http://localhost/fakecpp/v1/accesstoken'
+      # request a payment
+      requestPaymentUrl: 'http://localhost/fakecpp/v1/requestpayment'
+      # browser redirect to this URL
+      gatewayUrl: 'http://localhost/fakecpp/v1/gateway'
+      # request a refund
+      refundUrl: 'http://localhost/fakecpp/v1/refund'
+      # not using Dummy gateway
+      testMode: false
+    ## various configuration options
+    use_authorize: false
+    is_manual: false
+    use_async_notification: false
+    use_static_route: true
+    token_key: ''
+    is_offsite: true
+    can_capture: false
+    # Ref: https://github.com/silverstripe/silverstripe-omnipay/blob/master/docs/en/Configuration.md
+    can_refund: true
+    can_void: false
