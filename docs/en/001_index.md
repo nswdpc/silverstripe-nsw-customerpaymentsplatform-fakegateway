@@ -43,13 +43,13 @@ Choose a host name that you are using for development.
 
 ## JWT private/public key creation
 
-To avoid embedding even a fake dev keypair in version control/the module, you are required to create an RSA keypair test JWT encoding and decoding.
+To avoid embedding a key pair in version control/the module, you are required to create an RSA public/private key pair to test JWT encoding and decoding.
 
-Store these values in the jwtPrivateKey and jwtPublicKey values in your project configuration, respectively, noting YAML multiline requirements.
+Store these values in the jwtPrivateKey and jwtPublicKey values in your project configuration as shown above, noting YAML multiline requirements.
 
 ## Docker
 
-Depending on your setup, if you are using docker containers, using the container name could be used to enable communications for the following:
+Depending on your setup, if you are using docker containers, using the container name could enable communications to be sent and received between the following URLs:
 
 + paymentCompletionUrl
 + accessTokenUrl
