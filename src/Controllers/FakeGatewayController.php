@@ -22,7 +22,6 @@ use SilverStripe\View\ArrayData;
 
 /**
  * This fake gateway controller mimics the CPP for local testing
- * @TODO ensure only on dev/test
  * @author James
  */
 class FakeGatewayController extends Controller {
