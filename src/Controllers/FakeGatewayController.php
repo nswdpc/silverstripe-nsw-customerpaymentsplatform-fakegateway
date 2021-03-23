@@ -19,12 +19,12 @@ use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\View\ArrayData;
 
-
 /**
  * This fake gateway controller mimics the CPP for local testing
  * @author James
  */
-class FakeGatewayController extends Controller {
+class FakeGatewayController extends Controller
+{
 
     /**
      * Not enabled by default
@@ -71,70 +71,72 @@ class FakeGatewayController extends Controller {
      */
     private static $url_segment = "/fakecpp/v1";
 
-    private function checkEnabled() {
-        if(!$this->config()->get('enabled')) {
+    private function checkEnabled()
+    {
+        if (!$this->config()->get('enabled')) {
             $response = HTTPResponse::create();
-            $response->addHeader('Content-Type','application/json');
+            $response->addHeader('Content-Type', 'application/json');
             $response->setStatusCode(410);
-            $response->setBody( json_encode([
+            $response->setBody(json_encode([
                 'error' => '410 Gone',
-            ]) );
+            ]));
             return $response;
         }
         return true;
     }
 
-    public function init() {
+    public function init()
+    {
         parent::init();
 
         // check for enablement
         $response = $this->checkEnabled();
-        if($response instanceof HTTPResponse) {
+        if ($response instanceof HTTPResponse) {
             return $response;
         }
-
     }
 
     /**
      * NOOP
      */
-    public function index(HTTPRequest $request) {
+    public function index(HTTPRequest $request)
+    {
         $response = HTTPResponse::create();
-        $response->addHeader('Content-Type','application/json');
+        $response->addHeader('Content-Type', 'application/json');
         $response->setStatusCode(404);
-        $response->setBody( json_encode([
+        $response->setBody(json_encode([
             'error' => '404 Not found',
-        ]) );
+        ]));
         return $response;
     }
 
     /**
      * Get an access token
      */
-    public function accesstoken(HTTPRequest $request) {
-
+    public function accesstoken(HTTPRequest $request)
+    {
         $body = $request->getBody();
 
         Logger::log("accesstoken being requested");
         Logger::log("accesstoken {$body}");
 
         $response = HTTPResponse::create();
-        $response->addHeader('Content-Type','application/json');
+        $response->addHeader('Content-Type', 'application/json');
 
-        if(!$request->isPOST()) {
+        if (!$request->isPOST()) {
             $response->setStatusCode(405);
-            $response->setBody( json_encode([
+            $response->setBody(json_encode([
                 'error' => '405 Method Not Allowed',
-            ]) );
+            ]));
             return $response;
         }
 
         $response->setStatusCode(200);
-        $response->setBody( json_encode([
+        $response->setBody(json_encode([
             'access_token' => $this->accessToken,
             'expires' => time() + 3600,
             'token_type' => 'Bearer'
-        ]) );
+        ]));
 
         Logger::log("accesstoken returning body");
 
@@ -145,15 +147,16 @@ class FakeGatewayController extends Controller {
      * Given an incoming POST request, request a payment and get a payment reference
      * @TODO authenticate via Bearer header
      */
-    public function requestpayment(HTTPRequest $request) {
+    public function requestpayment(HTTPRequest $request)
+    {
         $response = HTTPResponse::create();
-        $response->addHeader('Content-Type','application/json');
+        $response->addHeader('Content-Type', 'application/json');
 
-        if(!$request->isPOST()) {
+        if (!$request->isPOST()) {
             $response->setStatusCode(405);
-            $response->setBody( json_encode([
+            $response->setBody(json_encode([
                 'error' => '405 Method Not Allowed',
-            ]) );
+            ]));
             return $response;
         }
 
@@ -164,17 +167,18 @@ class FakeGatewayController extends Controller {
 
         $response = HTTPResponse::create();
         $response->setStatusCode(200);
-        $response->setBody( json_encode([
+        $response->setBody(json_encode([
             'paymentReference' => "REF:{$agencyTransactionId}",
             'duplicate' => $this->paymentDuplicate
-        ]) );
+        ]));
         return $response;
     }
 
     /**
      * Given a CPP Payment record, return fake payload
      */
-    private function getPaymentPayload(Payment $payment, $issuer = "NSWDPC-FakeGateway-200") : array {
+    private function getPaymentPayload(Payment $payment, $issuer = "NSWDPC-FakeGateway-200") : array
+    {
         $payload = [
             "exp"=> time() + 3600,
             "sub"=> "fake-subject-claim-id",
@@ -198,7 +202,8 @@ class FakeGatewayController extends Controller {
     /**
      * Create a JWT token from the payload, configured private key and algo
      */
-    private function createJwt(array $payload) : string {
+    private function createJwt(array $payload) : string
+    {
         $token = JWT::encode($payload, $this->config()->get('jwtPrivateKey'), 'RS256');
         return $token;
     }
@@ -207,14 +212,15 @@ class FakeGatewayController extends Controller {
      * A fake payment form, where the payment reference is the only arg
      * @return Form
      */
-    public function FakePaymentForm() : Form {
+    public function FakePaymentForm() : Form
+    {
         $request = $this->getRequest();
-        if($request->isPOST()) {
+        if ($request->isPOST()) {
             $paymentReference = $request->postVar('ref');
         } else {
             $paymentReference = $request->getVar('paymentReference');
         }
-        if(!$paymentReference) {
+        if (!$paymentReference) {
             throw new \Exception("Payment reference not found or provided");
         }
         $form = Form::create(
@@ -235,8 +241,8 @@ class FakeGatewayController extends Controller {
                     . _t(
                         __CLASS__ . '.PAYMENT_MESSAGE',
                         'Use one of the buttons to trigger a payment completion response'
-                    )
-                    , "</div>"
+                    ),
+                    "</div>"
                 )
             ),
             Fieldlist::create(
@@ -278,11 +284,12 @@ class FakeGatewayController extends Controller {
     /**
      * Allow testing of the 50x response
      */
-    public function doRetryFail($data, $form) {
+    public function doRetryFail($data, $form)
+    {
         try {
             Logger::log('doRetryFail() starts');
             $paymentReference = $data['ref'] ?? '';
-            if(!$paymentReference) {
+            if (!$paymentReference) {
                 throw new \Exception("Invalid input, missing 'ref'");
             }
             // retrieve the correct agencyTransactionId as that's what is filtered on in completion
@@ -320,11 +327,12 @@ class FakeGatewayController extends Controller {
     /**
      * Allow testing of the 422 response
      */
-    public function doImmediateFail($data, $form) {
+    public function doImmediateFail($data, $form)
+    {
         try {
             Logger::log('doImmediateFail() starts');
             $paymentReference = $data['ref'] ?? '';
-            if(!$paymentReference) {
+            if (!$paymentReference) {
                 throw new \Exception("Invalid input, missing 'ref'");
             }
             // retrieve the correct agencyTransactionId as that's what is filtered on in completion
@@ -362,12 +370,12 @@ class FakeGatewayController extends Controller {
     /**
      * Handle a "payment", which is just a form post
      */
-    public function doPay($data, $form) {
-
+    public function doPay($data, $form)
+    {
         try {
             Logger::log('doPay() starts');
             $paymentReference = $data['ref'] ?? '';
-            if(!$paymentReference) {
+            if (!$paymentReference) {
                 throw new \Exception("Invalid input, missing 'ref'");
             }
             // retrieve the correct agencyTransactionId as that's what is filtered on in completion
@@ -399,7 +407,7 @@ class FakeGatewayController extends Controller {
             $form->sessionMessage("doPay failed: " . $e->getMessage());
         }
 
-        if($paymentReference) {
+        if ($paymentReference) {
             return $this->redirect(
                 $this->Link('gateway/?paymentReference=' . $paymentReference)
             );
@@ -412,14 +420,15 @@ class FakeGatewayController extends Controller {
      * Given an incoming GET request, simply POST back to the payment completion endpoint
      * and redirect back to the completion page
      */
-    public function gateway(HTTPRequest $request) {
+    public function gateway(HTTPRequest $request)
+    {
         try {
             $form = $this->FakePaymentForm();
             $data = ArrayData::create([
                 'Form' => $form,
-                'Title' => _t(__CLASS__ . '.PAY','Pay')
+                'Title' => _t(__CLASS__ . '.PAY', 'Pay')
             ]);
-            return $this->customise( $data )->renderWith('FakeGatewayController_gateway');
+            return $this->customise($data)->renderWith('FakeGatewayController_gateway');
         } catch (\Exception $e) {
         }
         return $this->httpError(400);
@@ -428,23 +437,23 @@ class FakeGatewayController extends Controller {
     /**
      * Return the refund reference
      */
-    public function refund(HTTPRequest $request) {
+    public function refund(HTTPRequest $request)
+    {
         $response = HTTPResponse::create();
-        $response->addHeader('Content-Type','application/json');
+        $response->addHeader('Content-Type', 'application/json');
 
-        if(!$request->isPOST()) {
+        if (!$request->isPOST()) {
             $response->setStatusCode(405);
-            $response->setBody( json_encode([
+            $response->setBody(json_encode([
                 'error' => '405 Method Not Allowed',
-            ]) );
+            ]));
             return $response;
         }
         $response->setStatusCode(200);
-        $response->setBody( json_encode([
+        $response->setBody(json_encode([
             // provide a unique-ish reference for fake purposes
             'refundReference' => "refund-" . microtime(true),
-        ]) );
+        ]));
         return $response;
     }
-
 }
