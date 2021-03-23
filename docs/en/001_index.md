@@ -6,7 +6,11 @@ You should not install this module in a production environment.
 
 ## Configuration
 
-You are required to add the following configuration values to your local project configuration:
+> Set USE_FAKE_GATEWAY=1 in your .env file to enable he fake gateway. If this is not set, the gateway will return a 410 for all requests.
+
+You are required to add configuration values to your local project configuration, replacing <your host> with your relevant development hostname.
+
+All requests to /fakecpp/v1/* will be routed to the FakeGatewayController.
 
 ```yaml
 ---
@@ -45,13 +49,15 @@ Choose a host name that you are using for development.
 
 To avoid embedding a key pair in version control/the module, you are required to create an RSA public/private key pair to test JWT encoding and decoding.
 
-Store these values in the jwtPrivateKey and jwtPublicKey values in your project configuration as shown above, noting YAML multiline requirements.
+Store these values in the jwtPrivateKey and jwtPublicKey values in your project configuration as shown above, noting YAML multi-line requirements.
 
-## Docker
+## Docker gotchas
 
-Depending on your setup, if you are using docker containers, using the container name could enable communications to be sent and received between the following URLs:
+Depending on your setup, if you are using docker containers, using the container name *could* enable communications to be sent and received between the following URLs:
 
 + paymentCompletionUrl
 + accessTokenUrl
 + requestPaymentUrl
 + refundUrl
+
+YKMV
