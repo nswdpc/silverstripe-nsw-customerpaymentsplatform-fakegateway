@@ -176,10 +176,11 @@ class FakeGatewayController extends Controller {
     /**
      * Given a CPP Payment record, return fake payload
      */
-    private function getPaymentPayload(Payment $payment): array {
+    private function getPaymentPayload(Payment $payment, $issuer = "NSWDPC-FakeGateway-200") : array {
         $payload = [
             "exp"=> time() + 3600,
             "sub"=> "fake-subject-claim-id",
+            "iss" => $issuer,// this can trigger various responses when decoded
             "paymentMethod"=> "CARD",
             "paymentReference"=> $payment->PaymentReference,
             "paymentCompletionReference"=> "fake-payment-completionref",
@@ -232,10 +233,12 @@ class FakeGatewayController extends Controller {
                 ),
                 LiteralField::create(
                     'PaymentMessage',
-                    _t(
+                    "<div class=\"message notice\">"
+                    . _t(
                         __CLASS__ . '.PAYMENT_MESSAGE',
-                        'Hit the button to complete the payment'
+                        'Use one of the buttons to trigger a payment completion response'
                     )
+                    , "</div>"
                 )
             ),
             Fieldlist::create(
@@ -243,7 +246,27 @@ class FakeGatewayController extends Controller {
                     'doPay',
                     _t(
                         __CLASS__ . ".DO_PAY",
-                        "Make a fake payment for reference '{paymentReference}'",
+                        "Make a fake payment for reference '{paymentReference}' (200)",
+                        [
+                            'paymentReference' => $paymentReference
+                        ]
+                    )
+                ),
+                FormAction::create(
+                    'doImmediateFail',
+                    _t(
+                        __CLASS__ . ".DO_IMM_FAIL",
+                        "Trigger an immediate fail for reference '{paymentReference}' (422)",
+                        [
+                            'paymentReference' => $paymentReference
+                        ]
+                    )
+                ),
+                FormAction::create(
+                    'doRetryFail',
+                    _t(
+                        __CLASS__ . ".DO_IMM_FAIL",
+                        "Trigger a fail for reference '{paymentReference}' (50x)",
                         [
                             'paymentReference' => $paymentReference
                         ]
@@ -252,6 +275,90 @@ class FakeGatewayController extends Controller {
             )
         );
         return $form;
+    }
+
+    /**
+     * Allow testing of the 50x response
+     */
+    public function doRetryFail($data, $form) {
+        try {
+            Logger::log('doRetryFail() starts');
+            $paymentReference = $data['ref'] ?? '';
+            if(!$paymentReference) {
+                throw new \Exception("Invalid input, missing 'ref'");
+            }
+            // retrieve the correct agencyTransactionId as that's what is filtered on in completion
+            $payment = Payment::getByPaymentReference($paymentReference);
+            // JWT
+            $issuer = "NSWDPC-FakeGateway-50x";
+            $payload = $this->getPaymentPayload($payment, $issuer);
+
+            $url = $this->config()->get('paymentCompletionUrl');
+            $body = [
+                'token' => $this->createJwt($payload)
+            ];
+            // POST the token back to the PaymentGatewayController
+            $client = new Curl(new Psr17Factory());
+            $browser = new Browser($client, new Psr17Factory());
+            $completionResponse = $browser->post(
+                $url,
+                [
+                    'User-Agent'=> Config::inst()->get(Payment::class, 'user_agent')
+                ],
+                json_encode($body)
+            );
+            // PaymentGatewayController repsonse
+            $status = $completionResponse->getStatusCode();
+            $body = $completionResponse->getBody();
+            $contentType = implode(",", $completionResponse->getHeader('content-type'));
+            $form->sessionMessage("complete() returned a {$status} code {$contentType} and body={$body}");
+        } catch (\Exception $e) {
+            Logger::log("Error at doRetryFail (ref={$paymentReference}) - " . $e->getMessage());
+            $form->sessionMessage("doRetryFail failed: " . $e->getMessage());
+        }
+        return $this->redirectBack();
+    }
+
+    /**
+     * Allow testing of the 422 response
+     */
+    public function doImmediateFail($data, $form) {
+        try {
+            Logger::log('doImmediateFail() starts');
+            $paymentReference = $data['ref'] ?? '';
+            if(!$paymentReference) {
+                throw new \Exception("Invalid input, missing 'ref'");
+            }
+            // retrieve the correct agencyTransactionId as that's what is filtered on in completion
+            $payment = Payment::getByPaymentReference($paymentReference);
+            // JWT
+            $issuer = "NSWDPC-FakeGateway-422";
+            $payload = $this->getPaymentPayload($payment, $issuer);
+
+            $url = $this->config()->get('paymentCompletionUrl');
+            $body = [
+                'token' => $this->createJwt($payload)
+            ];
+            // POST the token back to the PaymentGatewayController
+            $client = new Curl(new Psr17Factory());
+            $browser = new Browser($client, new Psr17Factory());
+            $completionResponse = $browser->post(
+                $url,
+                [
+                    'User-Agent'=> Config::inst()->get(Payment::class, 'user_agent')
+                ],
+                json_encode($body)
+            );
+            // PaymentGatewayController repsonse
+            $status = $completionResponse->getStatusCode();
+            $body = $completionResponse->getBody();
+            $contentType = implode(",", $completionResponse->getHeader('content-type'));
+            $form->sessionMessage("complete() returned a {$status} code {$contentType} and body={$body}");
+        } catch (\Exception $e) {
+            Logger::log("Error at doImmediateFail (ref={$paymentReference}) - " . $e->getMessage());
+            $form->sessionMessage("doImmediateFail failed: " . $e->getMessage());
+        }
+        return $this->redirectBack();
     }
 
     /**
@@ -268,6 +375,7 @@ class FakeGatewayController extends Controller {
             // retrieve the correct agencyTransactionId as that's what is filtered on in completion
             $payment = Payment::getByPaymentReference($paymentReference);
             // JWT
+            $issuer = "NSWDPC-FakeGateway-200";
             $payload = $this->getPaymentPayload($payment);
             $url = $this->config()->get('paymentCompletionUrl');
             $body = [
@@ -286,7 +394,8 @@ class FakeGatewayController extends Controller {
             // PaymentGatewayController repsonse
             $status = $completionResponse->getStatusCode();
             $body = $completionResponse->getBody();
-            $form->sessionMessage("OK .. complete() returned a {$status} code and body={$body}");
+            $contentType = implode(",", $completionResponse->getHeader('content-type'));
+            $form->sessionMessage("OK .. complete() returned a {$status} code {$contentType} and body={$body}");
         } catch (\Exception $e) {
             Logger::log("Error at doPay (ref={$paymentReference}) - " . $e->getMessage());
             $form->sessionMessage("doPay failed: " . $e->getMessage());
