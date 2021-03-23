@@ -58,7 +58,6 @@ class FakeGatewayController extends Controller {
 
 
     private static $allowed_actions = [
-        'doPay' => true,
         'FakePaymentForm' => true,
         'accesstoken' => true,
         'requestpayment' => true,
