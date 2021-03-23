@@ -15,6 +15,8 @@ The gateway form itself consists of a 'payment reference' field and a payment bu
 + Gateway 'payment' form
 + Payment completion POSTback to the configured paymentendpoint url provided by `silverstripe/silverstripe-omnipay`
 + Refund endpoint
++ Immediate failure testing (422)
++ Fail with retry testing (50x)
 
 ## Requirements
 
@@ -33,33 +35,9 @@ composer require --dev nswdpc/silverstripe-nsw-customerpaymentsplatform-fakegate
 
 This module is made available as an Open Source project under the [BSD-3-Clause](./LICENSE.md) license.
 
-## Documentation
-
-[Further documentation is available](./docs/en/001_index.md)
-
 ## Configuration
 
-Configuration is completed per-environment using the `SilverStripe\Omnipay\GatewayInfo` convention:
-
-```yml
----
-# app/_config/cpp.yml
-Name: 'app-cpp-payments'
-After:
-    - '#nswdpc-cpp-configuration'
----
-SilverStripe\Omnipay\GatewayInfo:
-  NSWGOVCPP:
-    parameters:
-      clientId: 'a client id'
-      clientSecret: 'a client secret'
-      jwtPublicKey: 'a JWT public key'
-      accessTokenUrl: 'https://access.example.com/token'
-      requestPaymentUrl: 'https://payment.example.com/request'
-      gatewayUrl: 'https://payment.example.com/pay'
-      refundUrl: 'https://payment.example.com/refund'
-      testMode: false
-```
+[Configuration documentation is available](./docs/en/001_index.md)
 
 ## Maintainers
 
