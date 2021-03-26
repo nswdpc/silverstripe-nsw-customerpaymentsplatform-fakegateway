@@ -62,7 +62,8 @@ class FakeGatewayController extends Controller
         'accesstoken' => true,
         'requestpayment' => true,
         'gateway' => true,
-        'refund' => true
+        'refund' => true,
+        'status' => true
     ];
 
     /**
@@ -453,6 +454,40 @@ class FakeGatewayController extends Controller
         $response->setBody(json_encode([
             // provide a unique-ish reference for fake purposes
             'refundReference' => "refund-" . microtime(true),
+        ]));
+        return $response;
+    }
+
+    /**
+     * Return the payment status. On a fake gateway, the payment status returned is COMPLETED
+     * The fake gateway accepts status requests to $this->Link(status/$paymentreference)
+     */
+    public function status(HTTPRequest $request)
+    {
+        $response = HTTPResponse::create();
+        $response->addHeader('Content-Type', 'application/json');
+
+        if (!$request->isGET()) {
+            $response->setStatusCode(405);
+            $response->setBody(json_encode([
+                'error' => '405 Method Not Allowed',
+            ]));
+            return $response;
+        }
+        $paymentReference = $request->param('ID');
+        if (!$paymentReference) {
+            $response->setStatusCode(400);
+            $response->setBody(json_encode([
+                'error' => '401 Bad Request',
+                'message' => "Missing paymentReference in the URL (/status/\$paymentReference)"
+            ]));
+            return $response;
+        }
+        $response->setStatusCode(200);
+        $response->setBody(json_encode([
+            "paymentReference" => $paymentReference,
+            "paymentStatus" => Payment::CPP_PAYMENTSTATUS_COMPLETED,
+            "referenceNumber" => "referenceNumber-" . microtime(true)
         ]));
         return $response;
     }
