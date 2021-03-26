@@ -63,7 +63,8 @@ class FakeGatewayController extends Controller
         'requestpayment' => true,
         'gateway' => true,
         'refund' => true,
-        'status' => true
+        'status' => true,
+        'reconciliation' => true
     ];
 
     /**
@@ -489,6 +490,41 @@ class FakeGatewayController extends Controller
             "paymentStatus" => Payment::CPP_PAYMENTSTATUS_COMPLETED,
             "referenceNumber" => "referenceNumber-" . microtime(true)
         ]));
+        return $response;
+    }
+
+    /**
+     * Reconciliation report
+     */
+    public function reconciliation(HTTPRequest $request) {
+
+        Logger::log( "reconciliation request" );
+
+        $response = HTTPResponse::create();
+        if (!$request->isGET()) {
+            $response->setStatusCode(405);
+            $response->setBody(json_encode([
+                'error' => '405 Method Not Allowed',
+            ]));
+            return $response;
+        }
+        $date = $request->getVar('reportDate');
+        if (!$date) {
+            Logger::log( "No report date provided: " . $_SERVER['REQUEST_URI'] );
+            $response->setStatusCode(400);
+            $response->addHeader('Content-Type', 'text/plain');
+            $response->setBody("No report date provided");
+            return $response;
+        }
+        Logger::log( "reconciliation report date is {$date}" );
+        $response->setStatusCode(200);
+        $response->addHeader('Content-Type', 'text/csv');
+        $csv = <<<CSV
+Requested Date,Payment Reference,Agency Transaction ID,Product Description,Agency Code,Parent Agency Code,Requested Amount,Payment Type,Payment Completed Date,Amount,Surcharge,Discount Applied,Completion Reference,Agency Settlement Date,GLIP ID,Parent Payment Reference,Customer Reference,Refund Amount,Refund Reason,Refund Reference,Refund Timestamp
+2020-09-16 14:08:28,GPP-DIG-G20DN5S-QdyFY1FTj55Qpg,e7d43f98-08a7-4879-9431-5818db7bc9d3,,SNSW_INTERNAL,,370.66,CARD,2020-09-16 14:11:43,370.66,1.63,0,7D3TRVWFAC,,700625,DL123456,,,,
+2020-09-16 14:10:13,GPP-DIG-sFWh32Y4SPuOXMSvQAd9MA,e29a031a-0e82-4107-ab79-ca3bbc3bc452,,SNSW_INTERNAL,,1058.73,CARD,2020-09-16 14:12:59,1058.73,4.65,0,GT7QSR7NYE,,700625,,DL123456,,,,
+CSV;
+        $response->setBody(trim($csv));
         return $response;
     }
 }

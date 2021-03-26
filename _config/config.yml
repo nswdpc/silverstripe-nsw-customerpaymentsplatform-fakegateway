@@ -33,6 +33,8 @@ SilverStripe\Omnipay\GatewayInfo:
       refundUrl: 'http://localhost/fakecpp/v1/refund/{{paymentReference}}/'
       # payment status Url
       statusUrl: 'http://localhost/fakecpp/v1/status/{{paymentReference}}/'
+      # URL for testing daily reconciliation report
+      dailyReconciliationUrl: ''
       # not using Dummy gateway
       testMode: false
     ## various configuration options
