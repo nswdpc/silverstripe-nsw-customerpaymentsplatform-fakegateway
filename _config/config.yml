@@ -30,7 +30,9 @@ SilverStripe\Omnipay\GatewayInfo:
       # browser redirect to this URL
       gatewayUrl: 'http://localhost/fakecpp/v1/gateway'
       # request a refund
-      refundUrl: 'http://localhost/fakecpp/v1/refund'
+      refundUrl: 'http://localhost/fakecpp/v1/refund/{{paymentReference}}/'
+      # payment status Url
+      statusUrl: 'http://localhost/fakecpp/v1/status/{{paymentReference}}/'
       # not using Dummy gateway
       testMode: false
     ## various configuration options
