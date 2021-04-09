@@ -1,8 +1,8 @@
-# Test CPP gateway for the
+# Test CPP gateway for local development
 
 This module provides a **fake** gateway used to help with acceptance testing of the client to the gateway.
 
-Use this module if you are enhancing or updating the `nswdpc/silverstripe-nsw-customerpaymentsplatform` module
+Use this module if you are enhancing or updating the [nswdpc/silverstripe-nsw-customerpaymentsplatform module](https://github.com/nswdpc/silverstripe-nsw-customerpaymentsplatform)
 
 The gateway form itself consists of a 'payment reference' field and a payment button.
 
@@ -16,12 +16,11 @@ The gateway form itself consists of a 'payment reference' field and a payment bu
 + Payment completion POSTback to the configured paymentendpoint url provided by `silverstripe/silverstripe-omnipay`
 + Refund endpoint
 + Immediate failure testing (422)
-+ Fail with retry testing (50x)
++ Fail-with-retry testing (50x)
 
 ## Requirements
 
 + `nswdpc/silverstripe-nsw-customerpaymentsplatform` module
-
 
 ### Installation
 

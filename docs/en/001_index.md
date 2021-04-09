@@ -1,12 +1,12 @@
 # Documentation
 
-This module should be used for acceptance testing of the CPP gateway client developer by NSW DPC Digital. It does not store or handle payment details.
+This module should be used for acceptance testing of the [CPP gateway client developed by NSW DPC Digital](https://github.com/nswdpc/silverstripe-nsw-customerpaymentsplatform). It does not store or handle payment details.
 
 You should not install this module in a production environment.
 
 ## Configuration
 
-> Set USE_FAKE_GATEWAY=1 in your .env file to enable he fake gateway. If this is not set, the gateway will return a 410 for all requests.
+> Set USE_FAKE_GATEWAY=1 in your .env file to enable the fake gateway. If this is not set, the gateway will return a 410 for all requests.
 
 You are required to add configuration values to your local project configuration, replacing <your host> with your relevant development hostname.
 
@@ -53,7 +53,7 @@ Store these values in the jwtPrivateKey and jwtPublicKey values in your project 
 
 ## Docker gotchas
 
-Depending on your setup, if you are using docker containers, using the container name *could* enable communications to be sent and received between the following URLs:
+Depending on your setup, if you are using Docker containers, using the container name *could* enable communications to be sent and received between the following URLs:
 
 + paymentCompletionUrl
 + accessTokenUrl
