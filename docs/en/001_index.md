@@ -21,7 +21,7 @@ envvarset: 'USE_FAKE_GATEWAY'
 ---
 NSWDPC\Payments\NSWGOVCPP\Agency\FakeGatewayController:
   enabled: true
-  paymentCompletionUrl: 'http://<your host>/paymentendpoint/gateway/NSWGOVCPP/complete'
+  paymentCompletionUrl: 'http://<client host>/paymentendpoint/gateway/NSWGOVCPP/complete'
   jwtPrivateKey: |
     -----BEGIN RSA PRIVATE KEY-----
     A KEY VALUE
@@ -34,13 +34,13 @@ SilverStripe\Omnipay\GatewayInfo:
         A KEY VALUE
         -----END PUBLIC KEY-----
       # get an access token
-      accessTokenUrl: 'http://<your host>/fakecpp/v1/accesstoken'
+      accessTokenUrl: 'http://<gateway host>/fakecpp/v1/accesstoken'
       # request a payment
-      requestPaymentUrl: 'http://<your host>/fakecpp/v1/requestpayment'
+      requestPaymentUrl: 'http://<gateway host>/fakecpp/v1/requestpayment'
       # browser redirect to this URL
-      gatewayUrl: 'http://<your host>/fakecpp/v1/gateway'
+      gatewayUrl: 'http://<gateway host>/fakecpp/v1/gateway'
       # request a refund
-      refundUrl: 'http://<your host>/fakecpp/v1/refund'
+      refundUrl: 'http://<gateway host>/fakecpp/v1/refund'
 ```
 
 Choose a host name that you are using for development.
