@@ -2,7 +2,8 @@
 Name: nswdpc-cpp-fakegatewayconfiguration
 After:
   - '#nswdpc-cpp-configuration'
-envvarset: 'USE_FAKE_GATEWAY'
+Only:
+  envvarset: 'USE_FAKE_GATEWAY'
 ---
 # Check the documentation for assistance setting these configuration values
 SilverStripe\Control\Director:
