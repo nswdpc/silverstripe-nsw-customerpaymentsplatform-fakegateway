@@ -187,7 +187,7 @@ class FakeGatewayController extends Controller
             "iss" => $issuer,// this can trigger various responses when decoded
             "paymentMethod"=> "CARD",
             "paymentReference"=> $payment->PaymentReference,
-            "paymentCompletionReference"=> "fake-payment-completionref",
+            "paymentCompletionReference"=> "cref-" . microtime(true),
             "bankReference"=> "fake-bankref",
             "amount"=> 1000.00,
             "surcharge"=> 12.00,
