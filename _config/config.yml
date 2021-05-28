@@ -3,6 +3,7 @@ Name: nswdpc-cpp-fakegatewayconfiguration
 After:
   - '#nswdpc-cpp-configuration'
 Only:
+  environment: 'dev'
   envvarset: 'USE_FAKE_GATEWAY'
 ---
 # Check the documentation for assistance setting these configuration values
@@ -14,6 +15,8 @@ NSWDPC\Payments\NSWGOVCPP\Agency\FakeGatewayController:
   # the POSTback URL for payment completion
   paymentCompletionUrl: 'http://localhost/paymentendpoint/gateway/NSWGOVCPP/complete'
   jwtPrivateKey: ''
+NSWDPC\Payments\NSWGOVCPP\Agency\Payment:
+  calling_system: 'TEST_FAKE_GATEWAY'
 SilverStripe\Omnipay\Model\Payment:
   allowed_gateways:
     - 'NSWGOVCPP'
