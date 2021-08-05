@@ -33,11 +33,5 @@
     },
     "config": {
         "sort-packages": true
-    },
-    "repositories" : [
-        {
-            "type": "vcs",
-            "url": "git@github.com:nswdpc/silverstripe-nsw-customerpaymentsplatform.git"
-        }
-    ]
+    }
 }
