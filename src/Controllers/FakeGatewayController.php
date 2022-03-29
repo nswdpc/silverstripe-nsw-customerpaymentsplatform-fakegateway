@@ -56,7 +56,10 @@ class FakeGatewayController extends Controller
      */
     private $paymentDuplicate = false;
 
-
+    /**
+     * Actions availble on controller
+     * @var array
+     */
     private static $allowed_actions = [
         'FakePaymentForm' => true,
         'accesstoken' => true,
@@ -73,6 +76,10 @@ class FakeGatewayController extends Controller
      */
     private static $url_segment = "/fakecpp/v1";
 
+    /**
+     * Check if this  fake gateway enabled, return 410 or bool true
+     * @return mixed
+     */
     private function checkEnabled()
     {
         if (!$this->config()->get('enabled')) {
@@ -87,6 +94,9 @@ class FakeGatewayController extends Controller
         return true;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function init()
     {
         parent::init();
@@ -99,9 +109,9 @@ class FakeGatewayController extends Controller
     }
 
     /**
-     * NOOP
+     * Based controller request, nothing to do here, return a 410
      */
-    public function index(HTTPRequest $request)
+    public function index(HTTPRequest $request) : HTTPResponse
     {
         $response = HTTPResponse::create();
         $response->addHeader('Content-Type', 'application/json');
@@ -113,9 +123,9 @@ class FakeGatewayController extends Controller
     }
 
     /**
-     * Get an access token
+     * Get an access token, return HTTPResponse with token (or not)
      */
-    public function accesstoken(HTTPRequest $request)
+    public function accesstoken(HTTPRequest $request) : HTTPResponse
     {
         $body = $request->getBody();
 
@@ -149,7 +159,7 @@ class FakeGatewayController extends Controller
      * Given an incoming POST request, request a payment and get a payment reference
      * @TODO authenticate via Bearer header
      */
-    public function requestpayment(HTTPRequest $request)
+    public function requestpayment(HTTPRequest $request) : HTTPResponse
     {
         $response = HTTPResponse::create();
         $response->addHeader('Content-Type', 'application/json');
@@ -286,7 +296,7 @@ class FakeGatewayController extends Controller
     /**
      * Allow testing of the 50x response
      */
-    public function doRetryFail($data, $form)
+    public function doRetryFail($data, $form) : HTTPResponse
     {
         try {
             Logger::log('doRetryFail() starts');
@@ -329,7 +339,7 @@ class FakeGatewayController extends Controller
     /**
      * Allow testing of the 422 response
      */
-    public function doImmediateFail($data, $form)
+    public function doImmediateFail($data, $form) : HTTPResponse
     {
         try {
             Logger::log('doImmediateFail() starts');
@@ -372,7 +382,7 @@ class FakeGatewayController extends Controller
     /**
      * Handle a "payment", which is just a form post
      */
-    public function doPay($data, $form)
+    public function doPay($data, $form) : HTTPResponse
     {
         try {
             Logger::log('doPay() starts');
@@ -419,8 +429,8 @@ class FakeGatewayController extends Controller
     }
 
     /**
-     * Given an incoming GET request, simply POST back to the payment completion endpoint
-     * and redirect back to the completion page
+     * Return gateway page with a fake payment form
+     * @return mixed
      */
     public function gateway(HTTPRequest $request)
     {
@@ -439,7 +449,7 @@ class FakeGatewayController extends Controller
     /**
      * Return the refund reference
      */
-    public function refund(HTTPRequest $request)
+    public function refund(HTTPRequest $request) : HTTPResponse
     {
         $response = HTTPResponse::create();
         $response->addHeader('Content-Type', 'application/json');
@@ -463,7 +473,7 @@ class FakeGatewayController extends Controller
      * Return the payment status. On a fake gateway, the payment status returned is COMPLETED
      * The fake gateway accepts status requests to $this->Link(status/$paymentreference)
      */
-    public function status(HTTPRequest $request)
+    public function status(HTTPRequest $request) : HTTPResponse
     {
         $response = HTTPResponse::create();
         $response->addHeader('Content-Type', 'application/json');
@@ -496,7 +506,7 @@ class FakeGatewayController extends Controller
     /**
      * Reconciliation report
      */
-    public function reconciliation(HTTPRequest $request) {
+    public function reconciliation(HTTPRequest $request) : HTTPResponse {
 
         Logger::log( "reconciliation request" );
 
